@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APTICK - 예산 탐색</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .budget-page {
+      max-width: 1160px;
+      margin: auto;
+      padding: 24px 16px 260px;
+      color: #172554;
+    }
+
+    .budget-page *,
+    .compare-dock *,
+    .toast {
+      box-sizing: border-box;
+    }
+
+    .budget-page .hero {
+      padding: 32px;
+      border: 0;
+      border-radius: 20px;
+      background: #172554;
+      color: white;
+    }
+
+    .budget-page .hero h2 {
+      margin: 12px 0;
+      color: white;
+      font-size: clamp(26px, 4vw, 40px);
+    }
+
+    .budget-page .hero p {
+      color: #dbeafe;
+      line-height: 1.8;
+    }
+
+    .budget-page .eyebrow {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .budget-page .dataset-box {
+      margin-top: 22px;
+      padding: 18px;
+      border: 1px solid #415485;
+      border-radius: 12px;
+    }
+
+    .budget-page .dataset-box p {
+      margin: 0 0 12px;
+    }
+
+    .budget-page .change-link {
+      display: inline-block;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .budget-page .panel {
+      margin-top: 20px;
+      padding: 24px;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      background: white;
+    }
+
+    .budget-page .muted {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .budget-page label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .budget-page select {
+      width: 100%;
+      min-height: 44px;
+      padding: 11px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: white;
+      color: #172554;
+      font-size: 14px;
+    }
+
+    .budget-page .budget-top,
+    .budget-page .results-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .budget-page .budget-value {
+      color: #2563eb;
+      font-size: 34px;
+      font-weight: 800;
+    }
+
+    .budget-page input[type="range"] {
+      display: block;
+      width: 100%;
+      margin: 24px 0 12px;
+      padding: 0;
+      accent-color: #2563eb;
+      cursor: pointer;
+    }
+
+    .budget-page .range-labels {
+      display: flex;
+      justify-content: space-between;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .budget-page .area-field {
+      max-width: 400px;
+      margin-top: 22px;
+    }
+
+    .budget-page .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .budget-page .summary-card {
+      padding: 22px;
+      border: 1px solid #dbeafe;
+      border-radius: 14px;
+      background: #eff6ff;
+    }
+
+    .budget-page .summary-card span {
+      color: #475569;
+      font-size: 13px;
+    }
+
+    .budget-page .summary-card strong {
+      display: block;
+      margin-top: 10px;
+      color: #1d4ed8;
+      font-size: 27px;
+    }
+
+    .budget-page .opportunity {
+      padding: 18px;
+      border-radius: 12px;
+      background: #f5f3ff;
+      color: #6d28d9;
+      line-height: 1.8;
+    }
+
+    .budget-page .opportunity.complete {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .budget-page .results-top {
+      margin: 30px 0 12px;
+    }
+
+    .budget-page .results-top h2 {
+      margin: 0 0 6px;
+      font-size: 22px;
+    }
+
+    .budget-page .sort-field {
+      min-width: 230px;
+    }
+
+    .budget-page .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .budget-page .apartment-card {
+      min-width: 0;
+      padding: 24px;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      background: white;
+    }
+
+    .budget-page .selected-a {
+      border-color: #2563eb;
+      background: #f5f9ff;
+    }
+
+    .budget-page .selected-b {
+      border-color: #7c3aed;
+      background: #faf7ff;
+    }
+
+    .budget-page .selection-badge {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .budget-page .selected-a .selection-badge {
+      background: #2563eb;
+    }
+
+    .budget-page .selected-b .selection-badge {
+      background: #7c3aed;
+    }
+
+    .budget-page .apartment-card h3 {
+      margin: 0 0 8px;
+      font-size: 19px;
+      overflow-wrap: anywhere;
+    }
+
+    .budget-page .price {
+      margin: 18px 0 6px;
+      color: #1d4ed8;
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .budget-page .ratio-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 20px 0 8px;
+      color: #475569;
+      font-size: 13px;
+    }
+
+    .budget-page .track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #e2e8f0;
+    }
+
+    .budget-page .fill {
+      height: 100%;
+      background: #2563eb;
+    }
+
+    .budget-page .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .budget-page button {
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .budget-page .card-actions button {
+      flex: 1;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .budget-page .card-actions .button-b {
+      background: #f5f3ff;
+      color: #6d28d9;
+    }
+
+    .budget-page .card-actions .button-a[aria-pressed="true"] {
+      background: #2563eb;
+      color: white;
+    }
+
+    .budget-page .card-actions .button-b[aria-pressed="true"] {
+      background: #7c3aed;
+      color: white;
+    }
+
+    .budget-page .empty {
+      margin-top: 20px;
+      padding: 36px 20px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      text-align: center;
+      color: #64748b;
+      line-height: 1.8;
+    }
+
+    .budget-page .empty h2 {
+      color: #172554;
+    }
+
+    .budget-page .start-link {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .budget-page .load-more {
+      display: block;
+      margin: 20px auto;
+      background: #e2e8f0;
+      color: #172554;
+    }
+
+    .compare-dock {
+      position: fixed;
+      z-index: 1000;
+      inset: auto 0 0;
+      padding: 14px 20px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      border-top: 1px solid #cbd5e1;
+      background: white;
+      box-shadow: 0 -8px 30px rgb(15 23 42 / 10%);
+      color: #172554;
+    }
+
+    .compare-dock .dock-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      max-width: 1128px;
+      margin: auto;
+    }
+
+    .compare-dock .dock-slot {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #eff6ff;
+    }
+
+    .compare-dock .dock-slot-b {
+      background: #f5f3ff;
+    }
+
+    .compare-dock .dock-letter {
+      color: #2563eb;
+      font-weight: 800;
+    }
+
+    .compare-dock .dock-slot-b .dock-letter {
+      color: #7c3aed;
+    }
+
+    .compare-dock .dock-name {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .compare-dock .remove-button {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 0;
+      border-radius: 6px;
+      background: white;
+      color: #475569;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .compare-dock .compare-button {
+      padding: 14px 20px;
+      border: 0;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .compare-dock .compare-button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .compare-dock .dock-help {
+      max-width: 1128px;
+      margin: 8px auto 0;
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 1100;
+      top: 20px;
+      left: 50%;
+      width: max-content;
+      max-width: calc(100% - 32px);
+      padding: 15px 20px;
+      transform: translateX(-50%);
+      border-radius: 12px;
+      background: #172554;
+      color: white;
+      box-shadow: 0 8px 30px rgb(15 23 42 / 20%);
+      line-height: 1.7;
+      pointer-events: none;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 700px) {
+      .budget-page .hero {
+        padding: 24px;
+      }
+
+      .budget-page .result-grid,
+      .budget-page .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .budget-page .sort-field {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .compare-dock {
+        padding-right: 12px;
+        padding-left: 12px;
+      }
+
+      .compare-dock .dock-inner {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .compare-dock .compare-button {
+        grid-column: 1 / -1;
+      }
+
+      .compare-dock .dock-slot {
+        gap: 6px;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>APTICK</h1>
+
+    <nav aria-label="주 메뉴">
+      <a href="index.html">시세</a>
+      <a href="budget.html" aria-current="page">예산 탐색</a>
+      <a href="compare.html">비교</a>
+      <a href="ranking.html">랭킹</a>
+    </nav>
+  </header>
+
+  <main class="budget-page">
+    <section class="hero">
+      <span class="eyebrow">APTICK BUDGET EXPLORER</span>
+      <h2>내 예산으로 어디까지?</h2>
+
+      <p>
+        예산과 면적을 선택해 보세요.<br>
+        조회한 지역에서 예산 이내 실거래가 있었던 아파트를 찾아드립니다.
+      </p>
+
+      <div class="dataset-box">
+        <p id="datasetInfo" role="status">
+          저장된 조회 결과를 확인하고 있습니다.
+        </p>
+
+        <a class="change-link" href="index.html">
+          지역·기간 변경 →
+        </a>
+      </div>
+    </section>
+
+    <div id="emptyState" class="empty" hidden>
+      <h2>먼저 탐색할 지역을 조회해 주세요</h2>
+      <p id="emptyStateText">
+        시세 페이지에서 지역과 기간을 조회하면 예산에 맞는 거래를 찾을 수 있어요.
+      </p>
+      <a class="start-link" href="index.html">시세 조회하러 가기 →</a>
+    </div>
+
+    <div id="explorerContent" hidden>
+      <section class="panel">
+        <div class="budget-top">
+          <label for="budgetRange">현재 선택한 예산</label>
+          <output
+            id="budgetValue"
+            for="budgetRange"
+            class="budget-value"
+          >—</output>
+        </div>
+
+        <input
+          id="budgetRange"
+          type="range"
+          min="0"
+          max="1000"
+          step="1000"
+          value="0"
+          aria-describedby="budgetHelp highestTrade"
+        >
+
+        <div class="range-labels">
+          <span>0원</span>
+          <span id="maximumBudget">—</span>
+        </div>
+
+        <p id="budgetHelp" class="muted">
+          1,000만 원 단위로 조절합니다.
+          최댓값은 현재 조회 지역·기간의 최고 거래가를
+          1,000만 원 단위로 올림한 금액입니다.
+          면적 필터를 바꿔도 슬라이더 범위는 유지됩니다.
+        </p>
+
+        <p id="highestTrade" class="muted"></p>
+
+        <div class="area-field">
+          <label for="areaFilter">전용면적</label>
+          <select id="areaFilter">
+            <option value="all">전체 면적</option>
+            <option value="small">59㎡ 이하</option>
+            <option value="medium">59㎡ 초과 ~ 85㎡ 이하</option>
+            <option value="large">85㎡ 초과</option>
+          </select>
+        </div>
+      </section>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span>조건에 맞는 단지·면적</span>
+          <strong id="matchCount">—</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>예산 이내 실제 거래</span>
+          <strong id="tradeCount">—</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>선택 면적의 전체 단지·면적</span>
+          <strong id="totalCount">—</strong>
+        </div>
+      </div>
+
+      <p id="opportunityText" class="opportunity" role="status"></p>
+
+      <div class="results-top">
+        <div>
+          <h2>예산에 맞는 거래 찾기</h2>
+          <span id="resultCount" class="muted" role="status"></span>
+        </div>
+
+        <div class="sort-field">
+          <label for="sortSelect">결과 정렬</label>
+          <select id="sortSelect" aria-describedby="sortHelp">
+            <option value="priceAsc">평균 가격 낮은 순</option>
+            <option value="priceDesc">평균 가격 높은 순</option>
+            <option value="recent">최근 거래순</option>
+            <option value="count">거래 많은 순</option>
+          </select>
+        </div>
+      </div>
+
+      <p id="sortHelp" class="muted"></p>
+
+      <p class="muted">
+        대표 가격과 가격 정렬은 예산 이내 거래 기준입니다.
+        최근 거래순도 예산 이내 거래의 최근 계약일 기준입니다.
+        전체 거래 평균은 카드에 별도로 표시합니다.
+      </p>
+
+      <div id="resultGrid" class="result-grid"></div>
+
+      <p id="emptyMessage" class="empty" hidden>
+        조건에 맞는 거래가 없어요. 예산이나 면적 조건을 바꿔 보세요.
+      </p>
+
+      <button id="loadMore" class="load-more" type="button" hidden>
+        결과 더 보기
+      </button>
+
+      <p class="muted">
+        ※ 과거 실거래 자료이며 현재 매물이나 구매 가능 여부를 의미하지 않습니다.
+        취득세·중개보수 등 추가 비용은 포함하지 않습니다.
+        층·동·향·상태와 거래 시점에 따라 가격이 달라질 수 있습니다.
+      </p>
+    </div>
+  </main>
+
+  <aside
+    id="compareDock"
+    class="compare-dock"
+    aria-label="선택한 비교 대상"
+    hidden
+  >
+    <div class="dock-inner">
+      <div class="dock-slot">
+        <span class="dock-letter">A</span>
+        <span id="selectedA" class="dock-name">선택하지 않음</span>
+        <button
+          id="removeA"
+          class="remove-button"
+          type="button"
+          aria-label="비교 대상 A 해제"
+          hidden
+        >×</button>
+      </div>
+
+      <div class="dock-slot dock-slot-b">
+        <span class="dock-letter">B</span>
+        <span id="selectedB" class="dock-name">선택하지 않음</span>
+        <button
+          id="removeB"
+          class="remove-button"
+          type="button"
+          aria-label="비교 대상 B 해제"
+          hidden
+        >×</button>
+      </div>
+
+      <button
+        id="compareButton"
+        class="compare-button"
+        type="button"
+        disabled
+      >두 대상 비교하기 →</button>
+    </div>
+
+    <p id="dockHelp" class="dock-help" role="status">
+      서로 다른 두 대상을 A와 B에 담아 주세요.
+    </p>
+  </aside>
+
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    hidden
+  ></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const $ = id => document.getElementById(id);
+      const DATA_KEY = "aptick.actualTrades.v2";
+      const FILTER_KEY = "aptick.budgetFilters.v1";
+      const COMPARE_KEY = "aptick.compareSelection.v1";
+      const BUDGET_STEP = 1000;
+
+      let apartments = [];
+      let dataset = null;
+      let results = [];
+      let visibleCount = 12;
+      let selectedA = "";
+      let selectedB = "";
+      let toastTimer;
+
+      const cardViews = new Map();
+
+      function readSaved(key) {
+        try {
+          return JSON.parse(sessionStorage.getItem(key));
+        } catch {
+          return null;
+        }
+      }
+
+      function writeSaved(key, value) {
+        try {
+          sessionStorage.setItem(key, JSON.stringify(value));
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      function money(value) {
+        const rounded = Math.round(value);
+
+        if (rounded === 0) return "0원";
+
+        const eok = Math.floor(rounded / 10000);
+        const man = rounded % 10000;
+
+        if (!eok) return man.toLocaleString("ko-KR") + "만 원";
+        if (!man) return eok.toLocaleString("ko-KR") + "억 원";
+
+        return eok.toLocaleString("ko-KR") + "억 " +
+          man.toLocaleString("ko-KR") + "만 원";
+      }
+
+      function monthLabel(month) {
+        return month.slice(0, 4) + "." + month.slice(4);
+      }
+
+      function node(tag, className, text) {
+        const element = document.createElement(tag);
+
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+
+        return element;
+      }
+
+      function toast(message) {
+        clearTimeout(toastTimer);
+        $("toast").textContent = message;
+        $("toast").hidden = false;
+
+        toastTimer = setTimeout(() => {
+          $("toast").hidden = true;
+        }, 3000);
+      }
+
+      function validDataset(data) {
+        return Boolean(
+          data &&
+          data.version === 2 &&
+          data.source === "molit" &&
+          typeof data.regionCode === "string" &&
+          /^\d{5}$/.test(data.regionCode) &&
+          Array.isArray(data.months) &&
+          [1, 3, 6, 12].includes(data.months.length) &&
+          data.months.every(month =>
+            typeof month === "string" &&
+            /^\d{4}(0[1-9]|1[0-2])$/.test(month)
+          ) &&
+          Array.isArray(data.apartments) &&
+          data.apartments.every(apartment =>
+            apartment &&
+            typeof apartment.id === "string" &&
+            typeof apartment.label === "string" &&
+            Number.isFinite(apartment.area) &&
+            apartment.area > 0 &&
+            Array.isArray(apartment.trades) &&
+            apartment.trades.length > 0 &&
+            apartment.trades.every(trade =>
+              trade &&
+              typeof trade.date === "string" &&
+              /^\d{4}-\d{2}-\d{2}$/.test(trade.date) &&
+              Number.isFinite(trade.price) &&
+              trade.price > 0
+            )
+          )
+        );
+      }
+
+      function displayDatasetInfo(regionName) {
+        const first = dataset.months[0];
+        const last = dataset.months[dataset.months.length - 1];
+
+        $("datasetInfo").textContent =
+          regionName + " · " +
+          monthLabel(first) + " ~ " + monthLabel(last) +
+          " · 실제 거래 데이터";
+      }
+
+      // 이전 데이터에 지역명이 없으면 기존 지역 목록에서 확인
+      function resolveRegionName() {
+        if (
+          typeof dataset.regionName === "string" &&
+          dataset.regionName.trim()
+        ) {
+          displayDatasetInfo(dataset.regionName);
+          return;
+        }
+
+        displayDatasetInfo("지역 코드 " + dataset.regionCode);
+
+        const sido = document.createElement("select");
+        sido.id = "sidoSelect";
+
+        const district = document.createElement("select");
+        district.id = "sigunguSelect";
+
+        const container = document.createElement("div");
+        container.hidden = true;
+        container.append(sido, district);
+        document.body.append(container);
+
+        let previousSelection = null;
+        let canRestore = false;
+
+        try {
+          previousSelection = sessionStorage.getItem(
+            "aptick.regionSelection.v1"
+          );
+          canRestore = true;
+        } catch {
+          // 저장소 접근이 제한돼도 예산 탐색은 계속 사용
+        }
+
+        function cleanup() {
+          container.remove();
+
+          if (!canRestore) return;
+
+          try {
+            if (previousSelection === null) {
+              sessionStorage.removeItem("aptick.regionSelection.v1");
+            } else {
+              sessionStorage.setItem(
+                "aptick.regionSelection.v1",
+                previousSelection
+              );
+            }
+          } catch {
+            // 지역 선택 복원 실패 시 현재 결과는 유지
+          }
+        }
+
+        const script = document.createElement("script");
+        script.src = "js/regions.js";
+
+        script.onload = () => {
+          try {
+            const sidoCode = dataset.regionCode.slice(0, 2);
+
+            const supported = Array.from(sido.options).some(
+              option => option.value === sidoCode
+            );
+
+            if (!supported) return;
+
+            sido.value = sidoCode;
+            sido.dispatchEvent(new Event("change"));
+
+            const option = Array.from(district.options).find(
+              item => item.value === dataset.regionCode
+            );
+
+            if (!option) return;
+
+            const sidoName = sido.selectedOptions[0].textContent;
+
+            const regionName = sidoName === option.textContent
+              ? sidoName
+              : sidoName + " " + option.textContent;
+
+            displayDatasetInfo(regionName);
+          } finally {
+            cleanup();
+          }
+        };
+
+        script.onerror = cleanup;
+        document.body.append(script);
+      }
+
+      function saveSelection() {
+        const previous = readSaved(COMPARE_KEY);
+
+        return writeSaved(COMPARE_KEY, {
+          a: selectedA,
+          b: selectedB,
+          mode: previous?.mode === "index" ? "index" : "actual"
+        });
+      }
+
+      function refreshSelections() {
+        cardViews.forEach((view, id) => {
+          const isA = selectedA === id;
+          const isB = selectedB === id;
+
+          view.card.classList.toggle("selected-a", isA);
+          view.card.classList.toggle("selected-b", isB);
+
+          view.badge.hidden = !isA && !isB;
+          view.badge.textContent = isA
+            ? "✓ 비교 대상 A"
+            : isB ? "✓ 비교 대상 B" : "";
+
+          view.a.textContent = isA ? "✓ A에 담김" : "A에 담기";
+          view.b.textContent = isB ? "✓ B에 담김" : "B에 담기";
+
+          view.a.setAttribute("aria-pressed", String(isA));
+          view.b.setAttribute("aria-pressed", String(isB));
+        });
+      }
+
+      function updateDock() {
+        const a = apartments.find(item => item.id === selectedA);
+        const b = apartments.find(item => item.id === selectedB);
+
+        $("selectedA").textContent = a ? a.label : "선택하지 않음";
+        $("selectedB").textContent = b ? b.label : "선택하지 않음";
+        $("selectedA").title = a?.label || "";
+        $("selectedB").title = b?.label || "";
+
+        $("removeA").hidden = !a;
+        $("removeB").hidden = !b;
+
+        const ready = Boolean(a && b && selectedA !== selectedB);
+        $("compareButton").disabled = !ready;
+
+        $("dockHelp").textContent = ready
+          ? "두 대상이 준비됐어요. 비교 페이지에서는 전체 거래를 비교합니다."
+          : "서로 다른 두 대상을 A와 B에 담아 주세요.";
+
+        refreshSelections();
+      }
+
+      function choose(side, apartment) {
+        const current = side === "A" ? selectedA : selectedB;
+        const other = side === "A" ? selectedB : selectedA;
+
+        if (current === apartment.id) {
+          toast("이미 " + side + "에 담은 대상이에요.");
+          return;
+        }
+
+        if (other === apartment.id) {
+          toast("다른 쪽에 이미 담은 대상이에요. 다른 대상을 선택해 주세요.");
+          return;
+        }
+
+        if (side === "A") selectedA = apartment.id;
+        else selectedB = apartment.id;
+
+        const saved = saveSelection();
+        updateDock();
+
+        toast(saved
+          ? side + "에 " + apartment.label + " 담았어요."
+          : "선택을 저장하지 못했어요."
+        );
+      }
+
+      function matchesArea(apartment) {
+        const value = $("areaFilter").value;
+
+        if (value === "small") return apartment.area <= 59;
+
+        if (value === "medium") {
+          return apartment.area > 59 && apartment.area <= 85;
+        }
+
+        if (value === "large") return apartment.area > 85;
+
+        return true;
+      }
+
+      function analyze(apartment, budget) {
+        const affordable = apartment.trades.filter(
+          trade => trade.price <= budget
+        );
+
+        if (!affordable.length) return null;
+
+        const sum = affordable.reduce(
+          (total, trade) => total + trade.price, 0
+        );
+
+        const totalSum = apartment.trades.reduce(
+          (total, trade) => total + trade.price, 0
+        );
+
+        const latestDate = affordable.reduce(
+          (date, trade) => trade.date > date ? trade.date : date,
+          ""
+        );
+
+        let latestLow = Infinity;
+        let latestHigh = -Infinity;
+
+        affordable.forEach(trade => {
+          if (trade.date === latestDate) {
+            latestLow = Math.min(latestLow, trade.price);
+            latestHigh = Math.max(latestHigh, trade.price);
+          }
+        });
+
+        return {
+          apartment,
+          count: affordable.length,
+          total: apartment.trades.length,
+          average: sum / affordable.length,
+          totalAverage: totalSum / apartment.trades.length,
+          ratio: affordable.length / apartment.trades.length,
+          latestDate,
+          latestLow,
+          latestHigh
+        };
+      }
+
+      function createCard(result) {
+        const apartment = result.apartment;
+        const card = node("article", "apartment-card");
+        const badge = node("span", "selection-badge");
+        badge.hidden = true;
+
+        card.append(
+          badge,
+          node("h3", "", apartment.label),
+          node("p", "muted", "전용 " + apartment.area + "㎡"),
+          node("p", "price", money(result.average)),
+          node("p", "muted", "예산 이내 거래 평균"),
+          node(
+            "p",
+            "muted",
+            "전체 거래 평균 " + money(result.totalAverage)
+          )
+        );
+
+        const ratio = node("div", "ratio-top");
+
+        ratio.append(
+          node("span", "", "예산 이내 / 전체 거래"),
+          node(
+            "strong",
+            "",
+            result.count + " / " + result.total + "건 · " +
+            Math.round(result.ratio * 100) + "%"
+          )
+        );
+
+        const track = node("div", "track");
+        track.setAttribute("aria-hidden", "true");
+
+        const fill = node("div", "fill");
+        fill.style.width = result.ratio * 100 + "%";
+        track.append(fill);
+
+        const latest = result.latestLow === result.latestHigh
+          ? money(result.latestLow)
+          : money(result.latestLow) + " ~ " + money(result.latestHigh);
+
+        const actions = node("div", "card-actions");
+        const a = node("button", "button-a", "A에 담기");
+        const b = node("button", "button-b", "B에 담기");
+
+        a.type = "button";
+        b.type = "button";
+        a.addEventListener("click", () => choose("A", apartment));
+        b.addEventListener("click", () => choose("B", apartment));
+
+        actions.append(a, b);
+
+        card.append(
+          ratio,
+          track,
+          node(
+            "p",
+            "muted",
+            "예산 이내 최근 계약 " + result.latestDate + " · " + latest
+          ),
+          actions
+        );
+
+        cardViews.set(apartment.id, { card, badge, a, b });
+        return card;
+      }
+
+      function renderCards(append = false) {
+        const grid = $("resultGrid");
+        const start = append ? grid.children.length : 0;
+
+        if (!append) {
+          grid.replaceChildren();
+          cardViews.clear();
+        }
+
+        results.slice(start, visibleCount).forEach(result => {
+          grid.append(createCard(result));
+        });
+
+        $("loadMore").hidden = visibleCount >= results.length;
+
+        $("resultCount").textContent =
+          "총 " + results.length.toLocaleString("ko-KR") +
+          "개 중 " +
+          Math.min(visibleCount, results.length).toLocaleString("ko-KR") +
+          "개 표시";
+
+        refreshSelections();
+      }
+
+      function updateBudgetMessage(candidates, budget) {
+        const message = $("opportunityText");
+        message.classList.remove("complete");
+
+        if (!candidates.length) {
+          message.textContent =
+            "선택한 면적에 해당하는 거래 데이터가 없어요. 면적 조건을 바꿔 보세요.";
+          return;
+        }
+
+        const allAffordable = candidates.every(apartment => {
+          return apartment.trades.every(trade => trade.price <= budget);
+        });
+
+        if (allAffordable) {
+          message.classList.add("complete");
+          message.textContent =
+            "선택한 면적의 모든 거래가 현재 예산 이내입니다.";
+          return;
+        }
+
+        // 슬라이더 최댓값을 넘지 않는 범위에서 예산 증가 효과 확인
+        const nextBudget = Math.min(
+          budget + 10000,
+          Number($("budgetRange").max)
+        );
+
+        const moreCount = candidates.filter(apartment => {
+          return apartment.trades.some(
+            trade => trade.price <= nextBudget
+          );
+        }).length;
+
+        const increase = nextBudget - budget;
+
+        if (moreCount > results.length) {
+          message.textContent =
+            "예산을 " + money(increase) + " 올리면 단지·면적 선택지가 " +
+            results.length + "개 → " + moreCount + "개로 늘어나요.";
+        } else {
+          message.textContent =
+            "예산을 " + money(increase) +
+            " 올려도 새로 추가되는 단지·면적은 없어요. " +
+            "이미 표시된 단지의 예산 이내 거래 건수는 늘어날 수 있어요.";
+        }
+      }
+
+      function update() {
+        const budget = Number($("budgetRange").value);
+        const candidates = apartments.filter(matchesArea);
+        const sort = $("sortSelect").value;
+
+        $("budgetValue").textContent = money(budget);
+        $("budgetRange").setAttribute("aria-valuetext", money(budget));
+
+        results = candidates
+          .map(apartment => analyze(apartment, budget))
+          .filter(Boolean);
+
+        results.sort((a, b) => {
+          let difference = 0;
+
+          if (sort === "priceAsc") difference = a.average - b.average;
+          if (sort === "priceDesc") difference = b.average - a.average;
+
+          if (sort === "recent") {
+            difference = b.latestDate.localeCompare(a.latestDate);
+          }
+
+          if (sort === "count") difference = b.count - a.count;
+
+          return difference ||
+            a.apartment.label.localeCompare(b.apartment.label, "ko");
+        });
+
+        const descriptions = {
+          priceAsc: "예산 이내 거래 평균 가격이 낮은 순서입니다.",
+          priceDesc: "예산 이내 거래 평균 가격이 높은 순서입니다.",
+          recent: "예산 이내 거래 중 최근 계약일이 최신인 순서입니다.",
+          count: "예산 이내 거래 건수가 많은 순서입니다."
+        };
+
+        $("sortHelp").textContent = descriptions[sort];
+
+        $("matchCount").textContent =
+          results.length.toLocaleString("ko-KR") + "개";
+
+        $("tradeCount").textContent = results
+          .reduce((sum, item) => sum + item.count, 0)
+          .toLocaleString("ko-KR") + "건";
+
+        $("totalCount").textContent =
+          candidates.length.toLocaleString("ko-KR") + "개";
+
+        updateBudgetMessage(candidates, budget);
+
+        $("emptyMessage").hidden = results.length > 0;
+        $("emptyMessage").textContent = candidates.length
+          ? "조건에 맞는 거래가 없어요. 예산을 높이거나 면적 조건을 바꿔 보세요."
+          : "선택한 면적에 해당하는 거래가 없어요. 면적 조건을 바꿔 보세요.";
+
+        visibleCount = 12;
+        renderCards();
+
+        writeSaved(FILTER_KEY, {
+          budget,
+          area: $("areaFilter").value,
+          sort
+        });
+      }
+
+      function showEmpty(message) {
+        $("datasetInfo").textContent = "탐색할 조회 데이터가 없습니다.";
+        $("emptyStateText").textContent = message;
+        $("emptyState").hidden = false;
+        $("explorerContent").hidden = true;
+        $("compareDock").hidden = true;
+      }
+
+      function initialize() {
+        const data = readSaved(DATA_KEY);
+
+        if (!data) {
+          showEmpty(
+            "시세 페이지에서 지역과 기간을 조회하면 예산에 맞는 거래를 찾을 수 있어요."
+          );
+          return;
+        }
+
+        if (!validDataset(data)) {
+          showEmpty(
+            "저장된 데이터를 읽을 수 없어요. 시세에서 다시 조회해 주세요."
+          );
+          return;
+        }
+
+        dataset = data;
+        apartments = data.apartments;
+        resolveRegionName();
+
+        if (!apartments.length) {
+          $("emptyStateText").textContent =
+            "조회 기간에 분석할 거래가 없어요. 다른 지역이나 기간으로 조회해 주세요.";
+          $("emptyState").hidden = false;
+          return;
+        }
+
+        let maximumPrice = 0;
+
+        apartments.forEach(apartment => {
+          apartment.trades.forEach(trade => {
+            maximumPrice = Math.max(maximumPrice, trade.price);
+          });
+        });
+
+        // 만 원 단위 가격을 1,000만 원 단위로 올림
+        const maximumBudget =
+          Math.ceil(maximumPrice / BUDGET_STEP) * BUDGET_STEP;
+
+        $("budgetRange").max = String(maximumBudget);
+        $("budgetRange").step = String(BUDGET_STEP);
+
+        $("maximumBudget").textContent =
+          "최대 " + money(maximumBudget);
+
+        $("highestTrade").textContent =
+          "현재 조회 데이터의 최고 거래가: " + money(maximumPrice);
+
+        const filters = readSaved(FILTER_KEY);
+        const initial = Number.isFinite(filters?.budget)
+          ? filters.budget
+          : Math.min(70000, maximumBudget);
+
+        $("budgetRange").value = String(
+          Math.min(
+            maximumBudget,
+            Math.max(
+              0,
+              Math.round(initial / BUDGET_STEP) * BUDGET_STEP
+            )
+          )
+        );
+
+        if (["all", "small", "medium", "large"].includes(filters?.area)) {
+          $("areaFilter").value = filters.area;
+        }
+
+        const sort = filters?.sort === "price"
+          ? "priceAsc"
+          : filters?.sort;
+
+        if (["priceAsc", "priceDesc", "recent", "count"].includes(sort)) {
+          $("sortSelect").value = sort;
+        }
+
+        const selection = readSaved(COMPARE_KEY);
+
+        selectedA = apartments.some(item => item.id === selection?.a)
+          ? selection.a
+          : "";
+
+        selectedB = apartments.some(item => item.id === selection?.b)
+          ? selection.b
+          : "";
+
+        if (selectedA === selectedB) selectedB = "";
+
+        $("explorerContent").hidden = false;
+        $("compareDock").hidden = false;
+        $("emptyState").hidden = true;
+
+        update();
+        updateDock();
+      }
+
+      $("budgetRange").addEventListener("input", update);
+      $("areaFilter").addEventListener("change", update);
+      $("sortSelect").addEventListener("change", update);
+
+      $("loadMore").addEventListener("click", () => {
+        visibleCount += 12;
+        renderCards(true);
+      });
+
+      ["A", "B"].forEach(side => {
+        $("remove" + side).addEventListener("click", () => {
+          if (side === "A") selectedA = "";
+          else selectedB = "";
+
+          const saved = saveSelection();
+          updateDock();
+          $("budgetRange").focus();
+
+          toast(saved
+            ? side + " 선택을 해제했어요."
+            : "선택을 해제했지만 저장하지 못했어요."
+          );
+        });
+      });
+
+      $("compareButton").addEventListener("click", () => {
+        if (!selectedA || !selectedB || selectedA === selectedB) {
+          return;
+        }
+
+        const stored = readSaved(DATA_KEY);
+
+        if (
+          !validDataset(stored) ||
+          stored.regionCode !== dataset.regionCode ||
+          stored.fetchedAt !== dataset.fetchedAt ||
+          JSON.stringify(stored.months) !== JSON.stringify(dataset.months)
+        ) {
+          toast("조회 데이터가 변경됐어요. 페이지를 새로고침해 주세요.");
+          return;
+        }
+
+        if (!saveSelection()) {
+          toast("비교 대상을 저장하지 못했어요.");
+          return;
+        }
+
+        window.location.href = "compare.html";
+      });
+
+      initialize();
+    })();
+  </script>
+</body>
+</html>

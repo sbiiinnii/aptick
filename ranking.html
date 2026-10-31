@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APTICK - 랭킹</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .ranking-page {
+      max-width: 1160px;
+      margin: auto;
+      padding: 24px 16px 60px;
+      color: #172554;
+    }
+
+    .ranking-page .hero {
+      padding: 32px;
+      border: 0;
+      border-radius: 20px;
+      background: #172554;
+      color: white;
+    }
+
+    .ranking-page .hero h2 {
+      color: white;
+      font-size: clamp(26px, 4vw, 36px);
+    }
+
+    .ranking-page .hero p {
+      color: #dbeafe;
+      line-height: 1.8;
+    }
+
+    .ranking-page .hero a {
+      color: #bfdbfe;
+    }
+
+    .ranking-page .muted {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .ranking-page .filters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .ranking-page label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .ranking-page select {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: white;
+      color: #172554;
+    }
+
+    .ranking-page .table-scroll {
+      overflow-x: auto;
+    }
+
+    .ranking-page table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .ranking-page th,
+    .ranking-page td {
+      padding: 15px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .ranking-page th:nth-child(2),
+    .ranking-page td:nth-child(2) {
+      text-align: left;
+    }
+
+    .ranking-page thead {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .ranking-page .empty-state {
+      padding: 44px 24px;
+      text-align: center;
+      background: #f8fafc;
+    }
+
+    .ranking-page .start-link {
+      display: inline-block;
+      margin: 8px 4px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .ranking-page [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 700px) {
+      .ranking-page .filters {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>APTICK</h1>
+
+    <nav aria-label="주 메뉴">
+      <a href="index.html">시세</a>
+      <a href="budget.html">예산 탐색</a>
+      <a href="compare.html">비교</a>
+      <a href="ranking.html" aria-current="page">랭킹</a>
+    </nav>
+  </header>
+
+  <main class="ranking-page">
+    <section class="hero">
+      <h2>아파트 실거래가 랭킹</h2>
+      <p id="datasetInfo" role="status"></p>
+      <p>
+        조회한 전체 거래를 기준으로 단지·전용면적별 순위를 계산합니다.
+      </p>
+      <a href="budget.html">예산에 맞는 아파트 찾기 →</a>
+    </section>
+
+    <section id="emptyState" class="empty-state" hidden>
+      <h2>순위를 볼 지역부터 조회해 주세요</h2>
+
+      <p id="emptyText" class="muted">
+        지역과 기간을 조회하면 평균 가격과 거래 건수 순위를 볼 수 있어요.
+      </p>
+
+      <a class="start-link" href="index.html">시세 조회하기</a>
+      <a class="start-link" href="budget.html">예산 탐색에서 시작하기</a>
+    </section>
+
+    <div id="rankingContent" hidden>
+      <section>
+        <h2>랭킹 조건</h2>
+
+        <div class="filters">
+          <p>
+            <label for="rankingCriteria">정렬 기준</label>
+
+            <select id="rankingCriteria" disabled>
+              <option value="average">평균 거래가 높은 순</option>
+              <option value="unitPrice">평균 ㎡당 거래가 높은 순</option>
+              <option value="count">거래 건수 많은 순</option>
+            </select>
+          </p>
+
+          <p>
+            <label for="areaFilter">전용면적</label>
+
+            <select id="areaFilter" disabled>
+              <option value="all">전체 면적</option>
+              <option value="under60">60㎡ 미만</option>
+              <option value="60to85">60㎡ 이상 ~ 85㎡ 이하</option>
+              <option value="over85">85㎡ 초과</option>
+            </select>
+          </p>
+        </div>
+
+        <p class="muted">
+          예산 탐색의 예산 필터는 적용하지 않습니다.
+          전체 면적에서는 크기가 다른 주택이 함께 표시됩니다.
+          ㎡당 가격도 층·동·향·상태의 차이를 보정한 지표는 아닙니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>랭킹 목록</h2>
+        <p id="rankingDescription" aria-live="polite"></p>
+
+        <div class="table-scroll">
+          <table>
+            <caption>조회 기간의 단지·전용면적별 거래 순위</caption>
+
+            <thead>
+              <tr>
+                <th scope="col">순위</th>
+                <th scope="col">단지·면적</th>
+                <th scope="col">평균 거래가</th>
+                <th scope="col">평균 ㎡당 가격</th>
+                <th scope="col">거래 건수</th>
+              </tr>
+            </thead>
+
+            <tbody id="rankingBody"></tbody>
+          </table>
+        </div>
+
+        <p class="muted">
+          가격 지표는 만 원 단위로 반올림한 값을 기준으로 순위를 정합니다.
+          같은 값은 공동 순위이며, 투자 가치나 수익률 순위가 아닙니다.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/ranking.js"></script>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const info = document.getElementById("datasetInfo");
+      const content = document.getElementById("rankingContent");
+      const empty = document.getElementById("emptyState");
+      const criteria = document.getElementById("rankingCriteria");
+
+      let data = null;
+
+      try {
+        data = JSON.parse(
+          sessionStorage.getItem("aptick.actualTrades.v2")
+        );
+      } catch {
+        // 저장된 데이터를 읽을 수 없으면 조회 안내 표시
+      }
+
+      if (
+        criteria.disabled ||
+        !Array.isArray(data?.apartments) ||
+        data.apartments.length === 0
+      ) {
+        content.hidden = true;
+        empty.hidden = false;
+
+        document.getElementById("emptyText").textContent =
+          info.textContent.trim() ||
+          "시세 또는 예산 탐색에서 먼저 지역과 기간을 조회해 주세요.";
+
+        return;
+      }
+
+      content.hidden = false;
+      empty.hidden = true;
+
+      function displayRegion(name) {
+        if (
+          !name ||
+          !Array.isArray(data.months) ||
+          !data.months.length
+        ) {
+          return;
+        }
+
+        const first = data.months[0];
+        const last = data.months[data.months.length - 1];
+
+        info.textContent =
+          name + " · " +
+          first.slice(0, 4) + "." + first.slice(4) +
+          " ~ " + last.slice(0, 4) + "." + last.slice(4) +
+          " · 실제 거래 데이터";
+      }
+
+      if (data.regionName) {
+        displayRegion(data.regionName);
+        return;
+      }
+
+      // 이전 데이터에 지역명이 없으면 기존 지역 목록에서 찾기
+      const sido = document.createElement("select");
+      sido.id = "sidoSelect";
+
+      const district = document.createElement("select");
+      district.id = "sigunguSelect";
+
+      const container = document.createElement("div");
+      container.hidden = true;
+      container.append(sido, district);
+      document.body.append(container);
+
+      const script = document.createElement("script");
+      script.src = "js/regions.js";
+
+      // 지역명 확인 중 사용자의 지역 선택 저장값이 바뀌지 않도록 보관
+      let previousSelection = null;
+      let canRestoreSelection = false;
+
+      try {
+        previousSelection = sessionStorage.getItem(
+          "aptick.regionSelection.v1"
+        );
+        canRestoreSelection = true;
+      } catch {
+        // 저장소 접근이 제한된 경우 이름 표시만 진행
+      }
+
+      function cleanup() {
+        container.remove();
+
+        if (!canRestoreSelection) return;
+
+        try {
+          if (previousSelection === null) {
+            sessionStorage.removeItem("aptick.regionSelection.v1");
+          } else {
+            sessionStorage.setItem(
+              "aptick.regionSelection.v1",
+              previousSelection
+            );
+          }
+        } catch {
+          // 지역 선택 복원 실패 시 현재 화면은 유지
+        }
+      }
+
+      script.onload = () => {
+        try {
+          const code = String(data.regionCode);
+          const sidoCode = code.slice(0, 2);
+
+          const hasSido = Array.from(sido.options).some(
+            option => option.value === sidoCode
+          );
+
+          if (!hasSido) return;
+
+          sido.value = sidoCode;
+          sido.dispatchEvent(new Event("change"));
+
+          const option = Array.from(district.options).find(
+            item => item.value === code
+          );
+
+          if (!option) return;
+
+          const sidoName = sido.selectedOptions[0].textContent;
+
+          displayRegion(
+            sidoName === option.textContent
+              ? sidoName
+              : sidoName + " " + option.textContent
+          );
+        } finally {
+          cleanup();
+        }
+      };
+
+      script.onerror = cleanup;
+      document.body.append(script);
+    })();
+  </script>
+</body>
+</html>

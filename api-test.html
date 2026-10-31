@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APTICK - API 연결 확인</title>
+
+  <style>
+    body {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      font-family: Arial, "맑은 고딕", sans-serif;
+      line-height: 1.6;
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+    }
+
+    input,
+    button {
+      box-sizing: border-box;
+      padding: 12px;
+      font: inherit;
+    }
+
+    input {
+      width: 100%;
+    }
+
+    button {
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    pre {
+      padding: 20px;
+      background: #f3f4f6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <h1>공공데이터 API 연결 확인</h1>
+
+  <label for="serviceKey">일반 인증키 — Decoding 키</label>
+  <input
+    id="serviceKey"
+    type="password"
+    autocomplete="off"
+    placeholder="인증키를 여기에 입력하세요"
+  >
+
+  <label for="dealMonth">조회할 계약월</label>
+  <input id="dealMonth" type="month" value="2026-09">
+
+  <p>조회 지역: 서울특별시 송파구 / 지역 코드: 11710</p>
+
+  <button id="testButton" type="button">실제 데이터 조회</button>
+
+  <p id="status" role="status">조회 버튼을 눌러 주세요.</p>
+  <pre id="result">아직 조회하지 않았습니다.</pre>
+
+  <script>
+    const keyInput = document.querySelector("#serviceKey");
+    const monthInput = document.querySelector("#dealMonth");
+    const testButton = document.querySelector("#testButton");
+    const statusText = document.querySelector("#status");
+    const resultText = document.querySelector("#result");
+
+    testButton.addEventListener("click", async function () {
+      const key = keyInput.value.trim();
+      const month = monthInput.value.replace("-", "");
+
+      if (!key || !/^\d{6}$/.test(month)) {
+        statusText.textContent = "인증키와 조회 월을 입력해 주세요.";
+        return;
+      }
+
+      const url = new URL(
+        "https://apis.data.go.kr/1613000/" +
+        "RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade"
+      );
+
+      // Decoding 키를 넣으면 URLSearchParams가 인코딩합니다.
+      url.searchParams.set("serviceKey", key);
+      url.searchParams.set("LAWD_CD", "11710");
+      url.searchParams.set("DEAL_YMD", month);
+      url.searchParams.set("pageNo", "1");
+      url.searchParams.set("numOfRows", "10");
+
+      testButton.disabled = true;
+      statusText.textContent = "조회 중입니다...";
+      resultText.textContent = "";
+
+      try {
+        const response = await fetch(url, {
+          signal: AbortSignal.timeout(30000)
+        });
+
+        const text = await response.text();
+
+        // 응답은 HTML로 실행하지 않고 글자로 표시합니다.
+        resultText.textContent = text;
+
+        if (!response.ok) {
+          statusText.textContent =
+            "HTTP 오류가 발생했습니다. 상태 코드: " + response.status;
+          return;
+        }
+
+        const xml = new DOMParser().parseFromString(
+          text,
+          "application/xml"
+        );
+
+        if (xml.querySelector("parsererror")) {
+          statusText.textContent =
+            "응답을 받았지만 올바른 XML이 아닙니다.";
+          return;
+        }
+
+        const code =
+          xml.querySelector("resultCode")?.textContent.trim();
+
+        const message =
+          xml.querySelector("resultMsg")?.textContent.trim() ||
+          xml.querySelector("returnAuthMsg")?.textContent.trim() ||
+          "아래 응답 내용을 확인해 주세요.";
+
+        if (code !== "000" && code !== "00") {
+          statusText.textContent = "API 응답: " + message;
+          return;
+        }
+
+        const count = xml.querySelectorAll("item").length;
+        const total =
+          xml.querySelector("totalCount")?.textContent.trim() || "?";
+
+        statusText.textContent =
+          "연결 성공! 전체 " + total +
+          "건 중 " + count + "건을 받았습니다.";
+      } catch (error) {
+        statusText.textContent = "요청을 완료하지 못했습니다.";
+
+        resultText.textContent =
+          error.name === "TimeoutError"
+            ? "응답 대기시간 30초를 초과했습니다."
+            : "네트워크 연결 또는 브라우저의 요청 제한을 확인해야 합니다. " +
+              "개발자 도구 콘솔의 오류 내용을 확인해 주세요.";
+      } finally {
+        testButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

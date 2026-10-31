@@ -1,0 +1,590 @@
+/* 공통 디자인 값 */
+:root {
+  --page-bg: #f5f7fb;
+  --surface: #ffffff;
+  --text: #172554;
+  --muted: #64748b;
+  --border: #e2e8f0;
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff;
+
+  --purple: #7c3aed;
+  --purple-light: #f5f3ff;
+
+  --card-radius: 16px;
+  --control-radius: 10px;
+}
+
+/* 기본 설정 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "맑은 고딕",
+    Arial,
+    sans-serif;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+a {
+  color: var(--primary);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* 상단 메뉴 */
+body > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 18px max(24px, calc((100% - 1128px) / 2));
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+body > header h1 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 27px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.8px;
+}
+
+body > header nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+body > header nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 9px 14px;
+  border-radius: 9px;
+  color: #475569;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+body > header nav a:hover {
+  background: #f1f5f9;
+  color: var(--primary);
+}
+
+body > header nav a[aria-current="page"] {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+
+/* 모든 페이지의 본문 너비 */
+main,
+main.market-page,
+main.budget-page,
+main.compare-page,
+main.ranking-page {
+  width: 100%;
+  max-width: 1160px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 16px;
+  padding-left: 16px;
+  color: var(--text);
+}
+
+main {
+  padding-top: 24px;
+  padding-bottom: 60px;
+}
+
+/* 일반 카드 */
+section {
+  min-width: 0;
+  padding: 26px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  background: var(--surface);
+}
+
+main.market-page section,
+main.budget-page section,
+main.compare-page section,
+main.ranking-page section {
+  padding: 26px;
+}
+
+/* 공통 제목 */
+section h2,
+main.market-page h2,
+main.budget-page h2,
+main.compare-page h2,
+main.ranking-page h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.45;
+  letter-spacing: -0.6px;
+}
+
+section h3 {
+  line-height: 1.5;
+  letter-spacing: -0.3px;
+}
+
+section p {
+  color: #475569;
+}
+
+section p:last-child {
+  margin-bottom: 0;
+}
+
+main .muted {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* 페이지 소개 카드 */
+main.market-page .hero,
+main.budget-page .hero,
+main.compare-page .intro,
+main.ranking-page .hero {
+  padding: 32px;
+  border: 0;
+  border-radius: 20px;
+  background: #172554;
+  color: white;
+}
+
+main.market-page .hero h2,
+main.budget-page .hero h2,
+main.compare-page .intro h2,
+main.ranking-page .hero h2 {
+  margin: 12px 0;
+  color: white;
+  font-size: clamp(27px, 4vw, 38px);
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: -1px;
+}
+
+main.market-page .hero p,
+main.budget-page .hero p,
+main.compare-page .intro p,
+main.ranking-page .hero p {
+  color: #dbeafe;
+  line-height: 1.8;
+}
+
+main.market-page .hero a,
+main.compare-page .intro a,
+main.ranking-page .hero a {
+  color: #bfdbfe;
+}
+
+main.budget-page .hero .change-link {
+  color: var(--primary-hover);
+}
+
+main .eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* 입력 요소 */
+label {
+  display: inline-block;
+  margin-right: 8px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+select,
+input:not([type="range"]) {
+  max-width: 100%;
+  min-height: 46px;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--control-radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+
+main.market-page input:not([type="range"]),
+main.market-page select,
+main.budget-page select,
+main.compare-page select,
+main.ranking-page select {
+  min-height: 46px;
+  border-color: #cbd5e1;
+  border-radius: var(--control-radius);
+  font-size: 14px;
+}
+
+input::placeholder {
+  color: #8492a6;
+  opacity: 1;
+}
+
+input:disabled,
+select:disabled {
+  background: #f1f5f9;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* 地域選択の余白は親のグリッドで管理 */
+#sidoSelect,
+#sigunguSelect {
+  margin-right: 0;
+  margin-bottom: 0;
+}
+
+/* 검색창 고정 너비 제거 */
+main.market-page #aptSearchInput {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 0;
+}
+
+/* 아파트 선택창 */
+#aptSelect {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* 검색 결과 안내 */
+#searchResults {
+  list-style: none;
+  margin: 10px 0 18px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+#searchResults li {
+  overflow-wrap: anywhere;
+}
+
+/* 공통 버튼 */
+button {
+  min-height: 42px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: var(--primary);
+  color: white;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+button:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* 전용 스타일이 있는 작은 해제 버튼 */
+.compare-dock .remove-button {
+  min-height: 30px;
+}
+
+.compare-dock .remove-button:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: var(--text);
+}
+
+/* 링크 버튼 */
+main .action-link,
+main .start-link,
+main .change-link {
+  line-height: 1.5;
+}
+
+main .action-link:hover,
+main .start-link:hover {
+  filter: brightness(0.96);
+}
+
+/* 기간·차트 보기 버튼 */
+main.market-page .period-buttons button,
+main.compare-page .mode-buttons button {
+  min-height: 36px;
+}
+
+main.market-page .period-buttons button:hover:not(:disabled),
+main.compare-page .mode-buttons button:hover:not(:disabled) {
+  background: #dbeafe;
+  color: var(--primary-hover);
+}
+
+main.market-page .period-buttons button[aria-pressed="true"] {
+  background: var(--primary);
+  color: white;
+}
+
+/* 키보드 초점 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+svg[tabindex]:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
+
+/* 최근 거래가 */
+#selectedApartmentName {
+  margin-bottom: 8px;
+  color: #475569;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+#latestPrice {
+  display: block;
+  color: var(--primary-hover);
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -1px;
+  overflow-wrap: anywhere;
+}
+
+/* 비교 카드 안의 지표 */
+dl {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0 24px;
+  margin: 0;
+}
+
+dt,
+dd {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+dt {
+  color: var(--muted);
+}
+
+dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+dt:nth-last-child(2),
+dd:last-child {
+  border-bottom: none;
+}
+
+/* 시세 지표 카드는 이름·값을 세로로 배치 */
+main.market-page .stats-grid {
+  gap: 12px;
+}
+
+main.market-page .stat-card dt {
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+}
+
+main.market-page .stat-card dd {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  text-align: left;
+}
+
+/* 시세 가격 카드와 차트의 연결 모양 유지 */
+main.market-page .latest-section {
+  border-radius: 18px 18px 0 0;
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+
+main.market-page .price-chart-section {
+  border-top: 0;
+  border-radius: 0 0 18px 18px;
+}
+
+/* 분석 설명 */
+#insightText {
+  margin-bottom: 12px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1e40af;
+  line-height: 1.9;
+}
+
+main.market-page .insight-section #insightText {
+  background: transparent;
+  padding: 0;
+  color: #5b21b6;
+}
+
+/* 표 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+caption {
+  padding: 12px 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+thead {
+  background: #f8fafc;
+  color: #475569;
+}
+
+tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* 접을 수 있는 보조 정보 */
+details {
+  margin-top: 16px;
+}
+
+summary {
+  color: #475569;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* 좁은 화면 */
+@media (max-width: 700px) {
+  body > header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  body > header h1 {
+    font-size: 25px;
+  }
+
+  body > header nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    gap: 4px;
+  }
+
+  body > header nav a {
+    min-height: 42px;
+    padding: 9px 4px;
+    font-size: 13px;
+  }
+
+  main,
+  main.market-page,
+  main.budget-page,
+  main.compare-page,
+  main.ranking-page {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  section,
+  main.market-page section,
+  main.budget-page section,
+  main.compare-page section,
+  main.ranking-page section {
+    padding: 22px;
+  }
+
+  main.market-page .hero,
+  main.budget-page .hero,
+  main.compare-page .intro,
+  main.ranking-page .hero {
+    padding: 24px;
+  }
+
+  #sidoSelect,
+  #sigunguSelect {
+    width: 100%;
+    margin: 0;
+  }
+
+  dl {
+    gap: 0 12px;
+    font-size: 14px;
+  }
+
+  .compare-dock .dock-name {
+    font-size: 12px;
+  }
+}
+
+/* 모션 감소 설정 */
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+}
